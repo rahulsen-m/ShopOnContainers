@@ -1,4 +1,4 @@
-﻿FROM microsoft/dotnet:2.1-sdk AS build
+﻿FROM microsoft/dotnet:2.1.503-sdk AS build
 
 WORKDIR /code
 
@@ -8,7 +8,7 @@ RUN dotnet restore
 
 RUN dotnet publish --output /out/ --configuration Release
 
-FROM microsoft/aspnetcore
+FROM microsoft/dotnet:2.1.503-sdk 
 
 COPY --from=build /out /app/
 
