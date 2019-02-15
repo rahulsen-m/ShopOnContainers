@@ -8,7 +8,7 @@ using FrontFacingClientApp.Models;
 
 namespace FrontFacingClientApp.Controllers
 {
-    public class HomeController : Controller
+    public class CatalogController : Controller
     {
         public IActionResult Index()
         {

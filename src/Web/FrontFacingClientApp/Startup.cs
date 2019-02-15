@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ShoesOnContainer.Web.ClientApp.Infrastructure;
+using ShoesOnContainer.Web.ClientApp.Services;
 
 namespace ShoesOnContainer.Web.ClientApp
 {
@@ -23,13 +25,20 @@ namespace ShoesOnContainer.Web.ClientApp
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // link the catalog settings with the configurations 
+            services.Configure<AppSettings>(Configuration);
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
                 options.CheckConsentNeeded = context => true;
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
-
+            // Register the dependency of interfaces 
+            // Only one instance will be used through out the application
+            services.AddSingleton<IHttpClient, CustomHttpClient>();
+            // Instance will be created in each catalog service request
+            services.AddTransient<ICatalogService, CatalogService>();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
         }
@@ -53,7 +62,7 @@ namespace ShoesOnContainer.Web.ClientApp
             {
                 routes.MapRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    template: "{controller=Catalog}/{action=Index}/{id?}");
             });
         }
     }
