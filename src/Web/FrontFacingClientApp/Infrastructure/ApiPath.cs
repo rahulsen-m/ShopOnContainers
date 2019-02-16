@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace ShoesOnContainer.Web.ClientApp.Infrastructure
+﻿namespace ShoesOnContainer.Web.ClientApp.Infrastructure
 {
     /// <summary>
     /// Helps to get the Catalog API base path to perform all the action provided by the Catalog API

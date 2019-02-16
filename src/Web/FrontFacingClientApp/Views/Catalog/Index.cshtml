@@ -1,5 +1,6 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Catalog";
+    @model ShoesOnContainer.Web.ClientApp.ViewModels.CatalogIndexViewModel
 }
 
 <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="6000">
@@ -53,42 +54,39 @@
     </a>
 </div>
 
-<div class="row">
-    <div class="col-md-3">
-        <h2>Application uses</h2>
-        <ul>
-            <li>Sample pages using ASP.NET Core MVC</li>
-            <li>Theming using <a href="https://go.microsoft.com/fwlink/?LinkID=398939">Bootstrap</a></li>
-        </ul>
+<section class="esh-catalog-filters">
+    <div class="container">
+        <form asp-action="Index" asp-controller="Catalog" method="post">
+            <label class="esh-catalog-label" data-title="brand">
+                <select asp-for="@Model.BrandFilterApplied" asp-items="@Model.Brands" class="esh-catalog-filter"></select>
+            </label>
+            <label class="esh-catalog-label" data-title="type">
+                <select asp-for="@Model.TypesFilterApplied" asp-items="@Model.Types" class="esh-catalog-filter"></select>
+            </label>
+            <input class="esh-catalog-send" type="image" src="~/images/arrow-right.svg" />
+        </form>
     </div>
-    <div class="col-md-3">
-        <h2>How to</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=398600">Add a Controller and View</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699315">Manage User Secrets using Secret Manager.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699316">Use logging to log a message.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699317">Add packages using NuGet.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699319">Target development, staging or production environment.</a></li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Overview</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=518008">Conceptual overview of what is ASP.NET Core</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=699320">Fundamentals of ASP.NET Core such as Startup and middleware.</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398602">Working with Data</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkId=398603">Security</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699321">Client side development</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699322">Develop on different platforms</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=699323">Read more on the documentation site</a></li>
-        </ul>
-    </div>
-    <div class="col-md-3">
-        <h2>Run &amp; Deploy</h2>
-        <ul>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517851">Run your app</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=517853">Run tools such as EF migrations and more</a></li>
-            <li><a href="https://go.microsoft.com/fwlink/?LinkID=398609">Publish to Microsoft Azure Web Apps</a></li>
-        </ul>
-    </div>
+</section>
+<div class="container">
+    @if (Model.CatalogItems.Count() > 0)
+    {
+        @await Html.PartialAsync("_pagination", Model.PaginationInfo);
+
+        <div class="esh-catalog-items row">
+            @foreach (var catalogItem in Model.CatalogItems)
+            {
+                <div class="esh-catalog-item col-md-4">
+                    @await Html.PartialAsync("_product", catalogItem)
+                </div>
+            }
+        </div>
+
+        @await Html.PartialAsync("_pagination", Model.PaginationInfo)
+    }
+    else
+    {
+        <div class="esh-catalog-items row">
+            THERE ARE NO RESULTS THAT MATCH YOUR SEARCH
+        </div>
+    }
 </div>
