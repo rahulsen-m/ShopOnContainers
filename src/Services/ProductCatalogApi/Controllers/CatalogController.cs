@@ -140,12 +140,12 @@ namespace ProductCatalogApi.Controllers
         // GET api/Catalog/Items/type/1/brand/null[?pageSize=4&pageIndex=0]
         [HttpGet]
         [Route("[action]/type/{catalogTypeId}/brand/{catalogBrandId}")]
-        public async Task<IActionResult> Items(int? catalogTypeId, int? catalogBrandId, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 0)
+        public async Task<IActionResult> Items(int? catalogTypeId = 0, int? catalogBrandId = null, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 0)
         {
             // IQueryable used to indicate that the query is not ready yet and we will not make db call
             var root = (IQueryable<CatalogItem>)_catalogContext.CatalogItems;
 
-            if (catalogTypeId.HasValue)
+            if (catalogTypeId != 0)
             {
                 root = root.Where(c => c.CatalogTypeId == catalogTypeId);
             }
