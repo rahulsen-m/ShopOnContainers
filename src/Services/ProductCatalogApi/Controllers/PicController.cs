@@ -9,6 +9,9 @@ namespace ProductCatalogApi.Controllers
     [Produces("application/json")]
     public class PicController : ControllerBase
     {
+        /*
+         * will help to get all the environment variable and the root path 
+         */
         private readonly IHostingEnvironment _env;
         public PicController(IHostingEnvironment env)
         {

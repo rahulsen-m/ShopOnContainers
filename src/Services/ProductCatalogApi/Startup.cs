@@ -23,8 +23,16 @@ namespace ProductCatalogApi
             // link the catalog settings with the configurations 
             services.Configure<CatalogSettings>(Configuration);
 
+            //  string connectionString = 
+            var server = Configuration["DatabaseServer"];
+            var database = Configuration["DatabaseName"];
+            var user = Configuration["DatabaseUser"];
+            var password = Configuration["DatabasePassword"];
+            var connectionString = string.Format("Server={0};Database={1};User={2};Password={3};", server, database, user, password);
+
             // register db context and added the connection string
-            services.AddDbContext<CatalogContext>(options => options.UseSqlServer(Configuration["ConnectionString"]));
+            //services.AddDbContext<CatalogContext>(options => options.UseSqlServer(Configuration["ConnectionString"]));
+            services.AddDbContext<CatalogContext>(options => options.UseSqlServer(connectionString));
 
             // Swagger
             services.AddSwaggerGen(options =>

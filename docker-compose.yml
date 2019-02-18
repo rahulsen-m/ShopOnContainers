@@ -1,0 +1,52 @@
+version: "3.6"
+
+networks:
+   frontend:
+   backend:
+
+services:
+   webmvc:
+      build: 
+         context: .\src\Web\FrontFacingClientApp
+         dockerfile: Dockerfile
+      environment: 
+         - ASPNETCORE_ENVIRONMENT=Development 
+         - CatalogUrl=http://catalog
+      container_name: webshop
+      ports:
+         - "5500:80"
+      networks:
+         - frontend 
+      depends_on:
+         - catalog
+
+   catalog:
+      build:
+         context: .\src\Services\ProductCatalogApi
+         dockerfile: Dockerfile
+      image: shoes/catalog
+      environment:
+         - DatabaseServer=mssqlserver
+         - DatabaseName=CatalogDb
+         - DatabaseUser=sa
+         - DatabasePassword=ProductApi(!)
+      container_name: catalogapi
+      ports:
+         - "5000:80"
+      networks:
+         - backend
+         - frontend
+      depends_on:
+         - mssqlserver
+         
+   mssqlserver:
+      image: "microsoft/mssql-server-linux:latest"
+      ports:
+         - "1445:1433"
+
+      container_name: mssqlcontainer
+      environment:
+         - ACCEPT_EULA=Y
+         - SA_PASSWORD=ProductApi(!)
+      networks:
+         - backend

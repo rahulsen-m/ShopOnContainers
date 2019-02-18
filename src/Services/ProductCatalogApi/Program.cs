@@ -12,8 +12,10 @@ namespace ProductCatalogApi
         public static void Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
+            // Get service collection from the host object
             using (var scope = host.Services.CreateScope())
             {
+                // Get all the services registered in the dependency injection container
                 var services = scope.ServiceProvider;
 
                 try

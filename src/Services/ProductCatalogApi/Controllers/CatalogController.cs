@@ -16,17 +16,22 @@ namespace ProductCatalogApi.Controllers
     public class CatalogController : ControllerBase
     {
         private readonly CatalogContext _catalogContext;
+        // injected a lifetime instance of CatalogSettings via IOptionsSnapshot
         private readonly IOptionsSnapshot<CatalogSettings> _settings;
 
         public CatalogController(CatalogContext catalogContext, IOptionsSnapshot<CatalogSettings> settings)
         {
-            this._catalogContext = catalogContext;
+            _catalogContext = catalogContext;
             _settings = settings;
             // Stop track the db changes 
             // As this is a read only context so we don't not need to track the changes
             catalogContext.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
         }
 
+        /// <summary>
+        /// Get all the catalog types
+        /// </summary>
+        /// <returns>List of catalog types</returns>
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> CatalogTypes()
@@ -36,6 +41,10 @@ namespace ProductCatalogApi.Controllers
 
         }
 
+        /// <summary>
+        /// Get all the catalog brands
+        /// </summary>
+        /// <returns>List of catalog brands</returns>
         [HttpGet]
         [Route("[action]")]
         public async Task<IActionResult> CatalogBrands()
@@ -45,6 +54,11 @@ namespace ProductCatalogApi.Controllers
 
         }
 
+        /// <summary>
+        /// Get the product by id
+        /// </summary>
+        /// <param name="id">Product Id</param>
+        /// <returns>Product details</returns>
         [HttpGet]
         [Route("items/{id:int}")]
         public async Task<IActionResult> GetItemById(int id)
@@ -62,6 +76,12 @@ namespace ProductCatalogApi.Controllers
             return NotFound();
         }
 
+        /// <summary>
+        /// Get products for pagination
+        /// </summary>
+        /// <param name="pageSize">Number of product per result</param>
+        /// <param name="pageIndex">Index of the product list</param>
+        /// <returns>List of products for pagination</returns>
         //GET api/Catalog/items[?pageSize=4&pageIndex=3]
         [HttpGet]
         [Route("[action]")]
@@ -81,6 +101,13 @@ namespace ProductCatalogApi.Controllers
 
         }
 
+        /// <summary>
+        /// Get product with name
+        /// </summary>
+        /// <param name="name">Name of the product</param>
+        /// <param name="pageSize">Number of the product per result</param>
+        /// <param name="pageIndex">Index of the product list</param>
+        /// <returns>Products with given name</returns>
         //GET api/Catalog/items/withname/Wonder?pageSize=2&pageIndex=0
         [HttpGet]
         [Route("[action]/withname/{name:minlength(1)}")]
@@ -102,15 +129,23 @@ namespace ProductCatalogApi.Controllers
 
         }
 
+        /// <summary>
+        /// Get product of the same brand
+        /// </summary>
+        /// <param name="catalogTypeId">Product type</param>
+        /// <param name="catalogBrandId">Product brand</param>
+        /// <param name="pageSize">Number of product per result</param>
+        /// <param name="pageIndex">Index of the product list</param>
+        /// <returns>List of product of the same brand</returns>
         // GET api/Catalog/Items/type/1/brand/null[?pageSize=4&pageIndex=0]
         [HttpGet]
         [Route("[action]/type/{catalogTypeId}/brand/{catalogBrandId}")]
-        public async Task<IActionResult> Items(int? catalogTypeId, int? catalogBrandId, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 0)
+        public async Task<IActionResult> Items(int? catalogTypeId = 0, int? catalogBrandId = null, [FromQuery] int pageSize = 6, [FromQuery] int pageIndex = 0)
         {
             // IQueryable used to indicate that the query is not ready yet and we will not make db call
             var root = (IQueryable<CatalogItem>)_catalogContext.CatalogItems;
 
-            if (catalogTypeId.HasValue)
+            if (catalogTypeId != 0)
             {
                 root = root.Where(c => c.CatalogTypeId == catalogTypeId);
             }
@@ -119,11 +154,8 @@ namespace ProductCatalogApi.Controllers
                 root = root.Where(c => c.CatalogBrandId == catalogBrandId);
             }
 
-            var totalItems = await root
-
-                              .LongCountAsync();
+            var totalItems = await root.LongCountAsync();
             var itemsOnPage = await root
-
                               .OrderBy(c => c.Name)
                               .Skip(pageSize * pageIndex)
                               .Take(pageSize)
@@ -135,6 +167,11 @@ namespace ProductCatalogApi.Controllers
 
         }
 
+        /// <summary>
+        /// Create new product
+        /// </summary>
+        /// <param name="product">Product details</param>
+        /// <returns>Newly created product details</returns>
         [HttpPost]
         [Route("items")]
         public async Task<IActionResult> CreateProduct([FromBody] CatalogItem product)
@@ -154,7 +191,11 @@ namespace ProductCatalogApi.Controllers
         }
 
 
-
+        /// <summary>
+        /// Update the existing product
+        /// </summary>
+        /// <param name="productToUpdate">Product details</param>
+        /// <returns>Newly updated product details</returns>
         [HttpPut]
         [Route("items")]
         public async Task<IActionResult> UpdateProduct([FromBody] CatalogItem productToUpdate)
@@ -172,6 +213,11 @@ namespace ProductCatalogApi.Controllers
             return CreatedAtAction(nameof(GetItemById), new { id = productToUpdate.Id });
         }
 
+        /// <summary>
+        /// Delete product
+        /// </summary>
+        /// <param name="id">Product Id</param>
+        /// <returns>204 status code</returns>
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
@@ -188,6 +234,8 @@ namespace ProductCatalogApi.Controllers
 
         }
 
+        #region Private Methods
+        // TODO: Move to helper class
         private List<CatalogItem> ChangeUrlPlaceHolder(List<CatalogItem> items)
         {
             items.ForEach(
@@ -195,5 +243,7 @@ namespace ProductCatalogApi.Controllers
                 _settings.Value.ExternalCatalogBaseUrl));
             return items;
         }
+
+        #endregion
     }
 }
